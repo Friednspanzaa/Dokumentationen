@@ -12,8 +12,6 @@ mit Thomas Hanke & Jasmin Fikus
 | [Sematic Versioning](https://semver.org/lang/de/) | Standartisierung bei Versionierungen | 
 
 
-
-
 ## WörterWolke
 Docker - Podman
 Kubernetes - Open Shift - Swarm
@@ -44,9 +42,6 @@ Bei Fork wird das Programm in einem neuem Prozess gestartet. Sollte das Programm
 - `Major` - Änderungen die inkompatibilität zu früheren Versionen erzeugen könnten
 - `Minor` -  Neue Funktionen die aber Kompatibel zu früheren Versionen sind.
 - `Patch` - Bugfixes
-
-
-## Podman:
 
 ### Linux Kommando Aufbau:
 - Kommando (`ls`)
@@ -82,15 +77,16 @@ Podman versucht direkt den Container runterzuladen und ihn auszuführen. Bei ern
 
 ## Wir bauen einen Container
 
-Wir starten ein interaktives Alpine-Image in einem neuem Pseudoterminal ()
+Wir starten ein interaktives Alpine-Image in einem neuem Pseudoterminal 
 - `podman run -it alpine`
   - `-i`: Interative, Ein und Ausgabe übertragen
   - `-t`: Terminal, Pseudoterminal um die Ausgabe irgendwo anzuzeigen
  ---
 
 Wir verknüpfen unser bash mit dem Container. Wir springen quasi hinein und können diese auch Beenden.
-- `podman attach $NAME`
-  
+- `podman attach $NAME` 
+
+- `podman pull $IMAGE-NAME` - Ein Image einfach nur Runterladen
 
 ## Namespaces & Controll-Groups
 
@@ -109,21 +105,21 @@ Es sollte immer eine Begrenzung des Memorys und der sonstigen Hardware geben, da
 - `podman info` 
   - Zum Nachschauen welcher Variablen und Einstellungen im Podman hinterlegt sind.
 
-## Registries
+## Registrys
 
-Wir haben über Registries geredet :-)
+Wir haben über Registrys geredet :-)
 
 ## Logs
 
 Jeder Container hinterlässt Logs. Diese können im nachhinein beobeachtet werden, aber auch zur Laufzeit.
 z.B. mit: 
-- `podman logs $Contianer-Name`
+- `podman logs $Contianer-Name` 
   - `-f` für follow
 
 
 ## Den Container bedienen
 
-> Den Container-Name mit `podman container ls` rausfinden.
+Den Container-Name mit `podman container ls` rausfinden.
 
 ![Docker Container Lifecyle Management](images/docker_lifecyle.jpg)
 
@@ -134,7 +130,7 @@ z.B. mit:
 - `man podman-run | grep Detached`
   - Gibt alle Man Pages für "podman run" an und filtert nach dem Keyword "detached"
 
-- `podman exec -it $Container-Name ls`
+- `podman exec -it $Container-Name ls` [^Name]
 
 - `podman rm $Container-Name` Um den Container zu löschen inklusive Logs.
 
@@ -153,4 +149,109 @@ z.B. mit:
 ## Cattle Pet - Prinzip
 
 Die Grundlagen der Virtualisierung
->Pets werden gepflegt, Cattle wird "weggeschmissen und neu geholt". 
+>Pets werden gepflegt, Cattle wird "weggeschmissen und neu geholt".
+
+## Volumes, Binds und tmpfs
+
+### Volumes
+> Volumes sind Speicher auf die verschiedene Container zugreifen können 
+- `podman volume create $VOLUME-NAME` - Das Volume erzeugen
+- `podman run --volume robins_volume:/mnt --rm --name volume_test -it alpine`
+
+| Kommando | Wirkung |
+| ----------- | ----------- |
+| `podman run` | Kommando für Podman |
+| `--volume robins_volume:/mnt` | Benutze das erzeugte Volume, und binde es unter /mnt ein. |
+| `--rm` | LÖSCHE den Container, nachdem er beendet wurde |
+| `--name volume_test` | Benenne den Container (unnötig) |
+| `-it alpine` | interaktiv, pseudoterminal, Alpine-Image |
+
+### Binds
+
+`podman run --volume /home/User/meinUserVerzeichnis/:/mnt:z --rm --name volume_test -it alpine`
+
+| Kommando | Wirkung |
+| ----------- | ----------- |
+| `podman run` | Kommando für Podman |
+| `--volume /home/User/meinUserVerzeichnis/:/mnt:z` | Benutze das erzeugte Volume, und binde es unter /mnt ein. Das Z-Flag erlaubt die Nutzung auch unter SE-Linux, was ansonsten die Benutung des Ornders verhindern würde.|
+| `--rm` | LÖSCHE den Container, nachdem er beendet wurde |
+| `--name volume_test` | Benenne den Container (unnötig) |
+| `-it alpine` | interaktiv, pseudoterminal, Alpine-Image |
+
+
+## Netze & Ports
+
+`podman run -it --rm nginx`
+Wir können einen nginx Starten, der geöffnete Port (80) ist allerdings nicht erreichbar. Wir wollen den Freigegebenen Port vom Host aufrufen können.
+
+`podman run -ditp 8080:80 --rm nginx`
+
+| Kommando | Wirkung |
+| ----------- | ----------- |
+| `podman run` | Kommando für Podman |
+| `-dp 8080:80 ` | Detached, Port öffnen: Host 8080 auf Container 80 |
+| `--rm` | Lösche den Container dannach wieder |
+| `nginx` | Nutze das Image nginx |
+
+[Zum Testen](http://localhost:8080)
+
+
+> podman exec -it cid sh
+>   
+
+
+## Work
+`podman run -dp 8080:80 -v /home/User/meinUserVerzeichnis:/usr/share/nginx/html --name Robins_Port_Test nginx`
+
+
+| Kommando | Wirkung |
+| ----------- | ----------- |
+| `podman run` | Kommando für Podman |
+| `-dp 8080:80 ` | Detached, Port öffnen: Host 8080 auf Container 80 |
+| `-v /home/User/meinUserVerzeichnis:/usr/share/nginx/html` | Binde den Ordner MeinUserVerzeichnis auf /usr/share/nginx/html/ |
+| `--name Robins_Port_Test` | Vergib einen schönen, sauberen Namen |
+| `nginx` | Nutze das Image nginx |
+
+## Umgebung Aufräumen:
+- `podman container prune`
+- `podman volume prune`
+
+## MYSQL und Word-Press
+
+- `podman run -it --rm mysql`
+- `podman image inspect mysql | les` 
+```
+  "Volumes": {
+      "/var/lib/mysql": {}
+  },
+```
+> wir finden raus, dass das Image ein volume BRAUCHT. Defaultmäßig würde der Container dies selber erzeugen. 
+
+- `podman volume create mysql_volume` - Wir erzeugen ein eigenes Volume
+- `podman run -it --volume dww:/var/lib/mysql mysql`
+``` 
+    You need to specify one of the following as an environment variable:
+  - MYSQL_ROOT_PASSWORD
+  - MYSQL_ALLOW_EMPTY_PASSWORD
+  - MYSQL_RANDOM_ROOT_PASSWORD
+```
+- `podman run -it --volume dww:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQLALLOW_EMPTY_PASSWORD=true -e MYSQL_RANDOM_ROOT_PASSWORD=root mysql`
+
+- `podman exec -it -l sh` Rein in die Maschine und Shell. podman exec -it -l sh
+
+---
+
+`podman network create net_wordpress`
+- Ein Netzwerk erzeugen womit Container untereinander kommunizieren. 
+
+```
+podman run -it --network net_wordpress -v vol_wordpress:/var/lib/mysql \
+--name maria_db_server \
+-e MYSQL_ROOT_PASSWORD=safe \
+-e MYSQL_DATABASE=wp \
+-e MYSQL_ALLOW_EMPTY_PASSWORD=true \
+-e MYSQL_RANDOM_ROOT_PASSWORD=geheim \
+mariadb
+```
+
+`podman run --name pma --network net_wordpress -p 8080:80 -e PMA_HOST=maria_db_server phpmyadmin`
