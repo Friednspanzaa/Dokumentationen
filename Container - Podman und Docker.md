@@ -67,17 +67,22 @@ Podman läuft ein wenig anders, mit Sub und oder auch Sub Sub Kommandos.
 
 Podman versucht direkt den Container runterzuladen und ihn auszuführen. Bei erneutem Ausführen des Containers ist das Image bereits runtergeladen und muss nicht erneut runtergeladen werden. Podman versucht den Alias "hello-world" aufzulösen und greift dabei auf die Datei `/etc/containers/registries.conf.d/000-shortnames.conf` zu.
 
-- `FGCN` - Fully Qualified Container Namen
-  - z.B. `quay.io/podman/hello:latest`
-- Podman speichert seine Images hier: `/home/User/.local/share/containers`
-- `podman container ls` Zeigt den status aller Container die installiert/runtergeladen sind.
-  
+- `FGCN` Fully Qualified Container Namen
+  - `quay.io/podman/hello:latest` 
+
+
+| Befehl | Wirkung |
+| ----------- | ----------- |
+| `cat /home/User/.local/share/containers` | Hier speichert Podman seine Images | 
+| `podman container ls` | Zeigt den status aller Container die installiert/runtergeladen sind. |
+| `podman container ls -a` | Infos über ALLE Verwendeten Container an. Auch die, die geschlossen sind. |
+ 
 > *Red Hat Open Shift Local* ist ein kostenloses Programm in dem man Open-Shift Lokal ausprobieren kann.
 
 
 ## Wir bauen einen Container
 
-Wir starten ein interaktives Alpine-Image in einem neuem Pseudoterminal 
+Wir starten ein interaktives Alpine-Image in einem neuem Pseudoterminal ()
 - `podman run -it alpine`
   - `-i`: Interative, Ein und Ausgabe übertragen
   - `-t`: Terminal, Pseudoterminal um die Ausgabe irgendwo anzuzeigen
@@ -86,8 +91,6 @@ Wir starten ein interaktives Alpine-Image in einem neuem Pseudoterminal
 Wir verknüpfen unser bash mit dem Container. Wir springen quasi hinein und können diese auch Beenden.
 - `podman attach $NAME`
   
- ---
-
 
 ## Namespaces & Controll-Groups
 
@@ -103,15 +106,51 @@ Es sollte immer eine Begrenzung des Memorys und der sonstigen Hardware geben, da
 
 > Ein Container ist nur eine Hülle. Arbeiten selbt tut der "Prozess". Also Docker oder Podman. 
 
+- `podman info` 
+  - Zum Nachschauen welcher Variablen und Einstellungen im Podman hinterlegt sind.
+
+## Registries
+
+Wir haben über Registries geredet :-)
+
+## Logs
+
+Jeder Container hinterlässt Logs. Diese können im nachhinein beobeachtet werden, aber auch zur Laufzeit.
+z.B. mit: 
+- `podman logs $Contianer-Name`
+  - `-f` für follow
+
+
 ## Den Container bedienen
+
+> Den Container-Name mit `podman container ls` rausfinden.
+
+![Docker Container Lifecyle Management](images/docker_lifecyle.jpg)
+
 
 - `Strg` + `p` + `q` - Zum Beenden eines Containers.
 
-- `podman info` 
-  - Zum Nachschauen welcher Variablen und Einstellungen im Podman hinterlegt sind.
 
 - `man podman-run | grep Detached`
   - Gibt alle Man Pages für "podman run" an und filtert nach dem Keyword "detached"
 
-## Registries
+- `podman exec -it $Container-Name ls`
 
+- `podman rm $Container-Name` Um den Container zu löschen inklusive Logs.
+
+### Container Löschen
+
+- `podman run --rm -it alpine`
+- #TODO: Was machte der "Pune" Befehl?
+
+### Container (um)benennen
+
+- `podman run --name Robins_Container -it alpine` - Startet den Container mit einem eigenenm Namen
+- `podman rename $Container-Name $Neuer-Container-Name` - Laufenden Container umbenenen. 
+
+> Ein Container-Name muss immer einzigartig sein. Wenn ich versuche ein zusätzlichen Container mit selben Name versuche zu *erzeugen* (run) kommt es zum Fehler. Einfaches starten (start) hingegen klappt.
+
+## Cattle Pet - Prinzip
+
+Die Grundlagen der Virtualisierung
+>Pets werden gepflegt, Cattle wird "weggeschmissen und neu geholt". 
