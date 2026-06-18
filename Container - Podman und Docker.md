@@ -329,7 +329,7 @@ volumes:
 
 > Secrets und Senstitive Daten sollten ausgelagert werden. Z.B. in eine .env Datei. Diese Datei wird dann nicht in der Versionierung (z.B. Git) aufgenommen.
 
-```
+``` BASH
 DB_NAME= wordpress
 MYSQL_USER= wpuser
 MYSQL_PASSWORD= wppassword
@@ -338,13 +338,9 @@ MYSQL_ROOT_PASSWORD= safe
 
 *.env* - Datei
 
-
-
-
 >podman-compose muss seperat installiert werden das es nicht im standardmäßigem Podman-Paket vorhanden ist
 
 #### Verwendete Befehle
-
 
 | Kommando | Wirkung |
 | ----------- | ----------- |
@@ -352,28 +348,34 @@ MYSQL_ROOT_PASSWORD= safe
 | `podman-compose up` | Podman anhand der Compose-Datei starten. Der Befehl muss im selben Ornder ausgeführt werden wie die composer.yml ist. |
 | `podman-compose down` | Die Sitzung wieder runterfahren. |
 | `podman-compose stats` | Statistiken über alle Composierten Session auslesen. |
-| `podman-compose --env-fle prod config` | Wir laden eine alternative Env.File (prod) und schauen uns die Composer Datei damit an. Variabelen werden dabei schon aufgelöst. |
+| `podman-compose --env-file prod` | Wir laden eine alternative Env.File (prod), Default: .env |
+| `config` | Wir schauen uns die Configurations-Datei (Composer) damit an. Variabelen werden dabei schon aufgelöst. |
 
 ## Unser eigenener Container
 
 Wir erzeugene eine neue Datei
-``` BASH
-FROM docker.io/library/nginx:alpine
 
-COPY index.html /usr/share/nginx/html/index.html
-EXPOSE 80
+``` BASH
+FROM docker.io/library/nginx:alpine # Grundlegendes Image
+COPY index.html /usr/share/nginx/html/index.html # Kopiere die index.html in den nginx Ornder
+EXPOSE 80 # Öffne Port 80 (wir müssen diesen trotzdem beim aufrufen des Containers angeben)
 ```
+
 *Containerfile* - Datei
 
--  `podman image ls` - Zum einsehen aller Images (auch die, die wir selbst hinterlegt haben).
+- `podman image ls` - Zum einsehen aller Images (auch die, die wir selbst hinterlegt haben).
 - `podman build -t localhost/itzbund/mein_image .`
-
 
 | Kommando | Wirkung |
 | ----------- | ----------- |
 | `podman build` | Podman soll ein Image "bauen" |
 | `-t [FQCN]/mein_image` | Wir hinterlegen einen Tag für unser neues Image damit wir dieses später auch benennen und starten können |
 | `.` | Configurationsumgebung. (. = Aktueller Ordner) |
+
+- `podman run -itp 8080:80 robins_erster_container:latest`
+
+Um größere Images zu bauen können wir Teile aus bereits bestehenden Images "kopieren".
+Dazu können wir z.B. das "FROM" oder "COPY" Kommando in der Containerfile vewenden. Mehr Infos dazu im Buch ab Seite 97.
 
 
 Diese Doku senden an:
