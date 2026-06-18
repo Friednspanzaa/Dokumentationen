@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  db:
+    image: docker.io/library/mysql:8.0
+    container_name: wordpress-db
+    # restart: always ## Funktioniert nur unter Docker, da Docker einen Deamon benutzt.
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql 
+
+  wordpress:
+    image: docker.io/library/wordpress:latest
+    container_name: wordpress-app
+    environment:
+      WORDPRESS_DB_HOST: db:3306 # Name des Services (Zeile 4) + Port
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${DB_NAME}
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+volumes:
+  db_data: # Volumen für die Datenbank, Default reicht aus.
+
