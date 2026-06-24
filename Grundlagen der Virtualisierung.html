@@ -141,8 +141,7 @@
 </tbody></table>
 <div class="h2" id="einführung">Einführung</div>
 <div class="h3" id="wörterwolke">WörterWolke</div>
-<pre><code class="language-plaintext hljs" data-highlighted="yes">sting
-Docker - Podman
+<pre><code class="language-plaintext hljs" data-highlighted="yes">Docker - Podman
 Kubernetes - Open Shift - Swarm
 Image - Container
 YAML - Namespace - Skalierung
@@ -218,7 +217,7 @@ YAML - Namespace - Skalierung
 <li><span class="code">podman run -it alpine ls -l</span> - ls -l wird als "Default" übertragen. In dem Image ist ein "entry-Point" definiert, wo der Befehl ausgeführt wird. In diesem Falle die Kommandozeile (Cmd)</li>
 </ul>
 <div class="h2" id="namespaces--control-groups">Namespaces &amp; Control-Groups</div>
-<p>Namespaces nutzen wir um eindeutige Interpretationen bzw. Definitionen zu ermöglichen. Ein Container erhält seinen eigenen Namespace in welchem er arbeiten kann. Im Namespace "Schmied" steht der Befehl "baue ein Schloss" für eine abschließbare Kette. Im Namespace "Königin" erstellt der gleiche Befehle ein Königliches Schloss mit Ballsaal und Thron.</p>
+<p>Namespaces nutzen wir um eindeutige Interpretationen bzw. Definitionen zu ermöglichen. Ein Container erhält seinen eigenen Namespace in welchem er arbeiten kann. Im Namespace "Schmied" steht der Befehl "baue ein Schloss" für eine abschließbare Kette. Im Namespace "Königin" erstellt der gleiche Befehl ein königliches Schloss mit Ballsaal und Thron.</p>
 <ul>
 <li><span class="code">man namespaces</span></li>
 </ul>
@@ -244,7 +243,7 @@ YAML - Namespace - Skalierung
 </ul>
 <div class="h2" id="der-container-lifecyle">Der Container Lifecyle</div>
 <p>Wir haben bereits einen Container erzeugt und gestartet (run) und können ihn über "<span class="code">podman start</span>" und "<span class="code">podman stop</span>" starten und stoppen.</p>
-<p><img src="https://k21academy.com/wp-content/uploads/2020/10/Capture-5.png" alt="Docker Container Lifecyle Management" style="max-width:100%;height:auto;"></p>
+<p><img src="images/docker_lifecyle.png" alt="Docker Container Lifecyle Management" style="max-width:100%;height:auto;"></p>
 <ul>
 <li><span class="code">Strg</span> + <span class="code">p</span> <span class="code">q</span> - Zum Beenden eines Containers.</li>
 <li>Den Container-Name mit <span class="code">podman container ls</span> rausfinden.</li>
@@ -266,7 +265,7 @@ YAML - Namespace - Skalierung
 <table class="table">
 <tbody><tr><th>Kommando</th><th>Wirkung</th></tr>
 <tr><td><span class="code">podman run --name $CONTAINER-NAME -it alpine</span></td><td>Startet einen Container und vergibt einen eigenen Namen</td></tr>
-<tr><td><span class="code">podman rename <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>O</mi><mi>N</mi><mi>T</mi><mi>A</mi><mi>I</mi><mi>N</mi><mi>E</mi><mi>R</mi><mo>−</mo><mi>N</mi><mi>A</mi><mi>M</mi><mi>E</mi></mrow><annotation encoding="application/x-tex">CONTAINER-NAME </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7667em; vertical-align: -0.0833em;"></span><span class="mord mathnormal" style="margin-right: 0.1389em;">CONT</span><span class="mord mathnormal">A</span><span class="mord mathnormal" style="margin-right: 0.0785em;">I</span><span class="mord mathnormal" style="margin-right: 0.0077em;">NER</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.109em;">N</span><span class="mord mathnormal">A</span><span class="mord mathnormal" style="margin-right: 0.0576em;">ME</span></span></span></span></span>NEW-CONTAINER-NAME</span></td><td>einen laufenden Container umbenennen.</td></tr>
+<tr><td><span class="code">podman rename $CONTAINER-NAME $NEW-CONTAINER-NAME</span></td><td>einen laufenden Container umbenennen.</td></tr>
 </tbody></table>
 <div class="quote">Ein Container-Name muss immer einzigartig sein. Wenn ich versuche ein zusätzlichen Container mit selben Name versuche zu <em>erzeugen</em> (<span class="code">podman run</span>) kommt es zum Fehler.</div>
 <div class="h3" id="cattle-pet---prinzip">Cattle Pet - Prinzip</div>
@@ -296,7 +295,8 @@ YAML - Namespace - Skalierung
 <tr><td><span class="code">--volume /home/User/Ordner1/:/mnt:z</span></td><td>Binde das designierte Verzeichnis 'Ordner1' in dem Container unter /mnt ein. Das z-Flag erlaubt die Nutzung auch unter SE-Linux und das der Container auf das Verzeichnis zugreifen darf.</td></tr>
 <tr><td><span class="code">--rm</span></td><td>LÖSCHE den Container, nachdem er beendet wurde</td></tr>
 <tr><td><span class="code">--name volume_test</span></td><td>Benenne den Container 'volume_test'</td></tr>
-<tr><td><span class="code">-it alpine</span></td><td>interactive, pseudoterminal, Alpine-Image</td></tr>
+<tr><td><span class="code">-it</span></td><td>interactive, pseudoterminal</td></tr>
+<tr><td><span class="code">alpine</span></td><td>Nutze das Image alpine</td></tr>
 </tbody></table>
 <div class="h3" id="tmpfs">tmpfs</div>
 <p>Wir haben tmpfs mit einem halben Satz angesprochen... ( ͡° ͜ʖ ͡°)_/¯</p>
@@ -333,13 +333,11 @@ YAML - Namespace - Skalierung
 <li><span class="code">podman pull mysql</span> - Ein Mysql Image runterladen</li>
 <li><span class="code">podman image inspect mysql | less</span> - Das Image untersuchen</li>
 </ul>
-<pre><code class="language-plaintext hljs" data-highlighted="yes">bash
-  "Volumes": {
-      "/var/lib/mysql": {}
-  },</code></pre>
+<pre><code class="language-plaintext hljs" data-highlighted="yes">"Volumes": {
+    "/var/lib/mysql": {}
+},</code></pre>
 <p>wir finden raus, dass das Image ein Volume <strong>braucht</strong>. Defaultmäßig würde der Container dies selber erzeugen. Wir können dies aber auch selber machen:<br> <span class="code">podman volume create mysql_volume</span> - und anschließend dem Container mitgeben mit: <span class="code">podman run -it --volume mysql_volume:/var/lib/mysql mysql</span><br>Trotzdem bekommen wir die Fehlermeldung:</p>
-<pre><code class="language-plaintext hljs" data-highlighted="yes">bash
-    You need to specify one of the following as an environment variable:
+<pre><code class="language-plaintext hljs" data-highlighted="yes">You need to specify one of the following as an environment variable:
   - MYSQL_ROOT_PASSWORD
   - MYSQL_ALLOW_EMPTY_PASSWORD
   - MYSQL_RANDOM_ROOT_PASSWORD</code></pre>
@@ -365,8 +363,7 @@ YAML - Namespace - Skalierung
 <p><span class="code">podman network create net_wordpress</span> - Erzeugt ein Containernetzwerk mit der Bezeichnung: "net_wordpress"</p>
 <div class="h4" id="verwendung">Verwendung</div>
 <div class="h5" id="kommando-erster-container">Kommando Erster Container</div>
-<pre><code class="language-plaintext hljs" data-highlighted="yes">bash
-podman run -d \
+<pre><code class="language-plaintext hljs" data-highlighted="yes">podman run -d \
 --name mariadb-test \
 --network net_wordpress \
 -e MYSQL_DATABASE=wp \
@@ -376,8 +373,7 @@ podman run -d \
 -v vol_wordpress:/var/lib/mysql \
 mariadb</code></pre>
 <div class="h5" id="kommando-zweiter-container">Kommando Zweiter Container</div>
-<pre><code class="language-plaintext hljs" data-highlighted="yes">bash
-podman run -d --name pma \
+<pre><code class="language-plaintext hljs" data-highlighted="yes">podman run -d --name pma \
 --network net_wordpress \
 -p 8080:80 \
 -e PMA_HOST=mariadb-test \
@@ -385,9 +381,7 @@ phpmyadmin</code></pre>
 <div class="h2" id="raus-aus-bash---rein-in-die-beschreibung">Raus aus Bash -&gt; Rein in die Beschreibung</div>
 <p>Mit <span class="code">podman-compose</span> können wir über eine Composer-Datei ein komplettes Setup aufbauen. Datenbanken, Appserver und Webserver inkl. Netzwerk, Volumes und mehr.</p>
 <p><span class="code">podman-compose</span> muss i.d.R. nachinstalliert werden da es nicht im standardmäßigem Podman-Paket vorhanden ist. Z.B. mit <span class="code">sudo dnf install podman-compose</span></p>
-<pre><code class="language-plaintext hljs" data-highlighted="yes">YAML
-version: '3.8'
-
+<pre><code class="language-plaintext hljs" data-highlighted="yes">version: '3.8'
 services:
   db:
     image: docker.io/library/mysql:8.0
@@ -415,11 +409,10 @@ services:
       - db
 
 volumes:
-  db_data: # Volumen für die Datenbank, Default reicht aus.</code></pre>
+  db_data: # volume für die Datenbank, Default reicht aus.</code></pre>
 <p><em>compose.yml</em> - Datei</p>
 <p>Secrets und sensitive  Daten (Hier als Variable mit ${XXX} gekennzeichnet) sollten ausgelagert werden. Z.B. in eine .env Datei. Diese Datei wird dann nicht in der Versionierung (z.B. Git) aufgenommen und/oder bekommt spezielle Zugriffsberechtigungen.</p>
-<pre><code class="language-plaintext hljs" data-highlighted="yes">BASH
-DB_NAME= wordpress
+<pre><code class="language-plaintext hljs" data-highlighted="yes">DB_NAME= wordpress
 MYSQL_USER= wpuser
 MYSQL_PASSWORD= wppassword
 MYSQL_ROOT_PASSWORD= safe</code></pre>
@@ -436,8 +429,7 @@ MYSQL_ROOT_PASSWORD= safe</code></pre>
 </tbody></table>
 <div class="h2" id="unser-eigener-container">Unser eigener Container</div>
 <p>Wir erzeugen eine neue Datei</p>
-<pre><code class="language-plaintext hljs" data-highlighted="yes">BASH
-FROM docker.io/library/nginx:alpine # Grundlegendes Image
+<pre><code class="language-plaintext hljs" data-highlighted="yes">FROM docker.io/library/nginx:alpine # Grundlegendes Image
 COPY index.html /usr/share/nginx/html/index.html # Kopiere die index.html in den nginx Ordner
 EXPOSE 80 # Öffne Port 80 (wir müssen diesen trotzdem beim aufrufen des Containers angeben)</code></pre>
 <p><em>containerfile</em> - Datei</p>
@@ -451,10 +443,7 @@ EXPOSE 80 # Öffne Port 80 (wir müssen diesen trotzdem beim aufrufen des Contai
 </tbody></table>
 <p>Kommando: <span class="code">podman run -itp 8080:80 mein_image:latest</span></p>
 <table class="table">
-<tbody><tr><th>Kommando</th><th>Wirkung</th></tr>
-</tbody></table>
-<table class="table">
-<tbody><tr><th><span class="code">podman run</span></th><th>Podman soll ein Image "bauen"</th></tr>
+<tbody><tr><th>(Sub) Kommando</th><th>Wirkung</th></tr><th><span class="code">podman run</span></th><th>Podman soll ein Image "bauen"</tr>
 <tr><td><span class="code">-itp</span></td><td>interactive, pseudoterminal, sende Port 80 (Container) auf 8080 (Host)</td></tr>
 <tr><td><span class="code">mein_image:latest</span></td><td>welches Image soll verwendet werden inklusive der Version</td></tr>
 </tbody></table>

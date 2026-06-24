@@ -59,7 +59,7 @@ Author: Robin Heydkamp, [robin.heydkamp@itzbund.de](robin.heydkamp@itzbund.de)
 
 ### WörterWolke
 
-``` sting
+``` string
 Docker - Podman
 Kubernetes - Open Shift - Swarm
 Image - Container
@@ -247,7 +247,8 @@ Benutzung: `podman run --volume /home/User/Ordner1/:/mnt:z --rm --name volume_te
 | `--volume /home/User/Ordner1/:/mnt:z` | Binde das designierte Verzeichnis 'Ordner1' in dem Container unter /mnt ein. Das z-Flag erlaubt die Nutzung auch unter SE-Linux und das der Container auf das Verzeichnis zugreifen darf. |
 | `--rm` | LÖSCHE den Container, nachdem er beendet wurde |
 | `--name volume_test` | Benenne den Container 'volume_test' |
-| `-it alpine` | interactive, pseudoterminal, Alpine-Image |
+| `-it` | interactive, pseudoterminal |
+| `alpine` | Nutze das Image alpine |
 
 ### tmpfs
 
@@ -445,9 +446,8 @@ Kommando: `podman build -t [FQCN]/mein_image .`
 
 Kommando: `podman run -itp 8080:80 mein_image:latest`
 
-| Kommando | Wirkung |
+| (Sub) Kommando | Wirkung |
 | ----------- | ----------- |
-
 | `podman run` | Podman soll ein Image "bauen" |
 | `-itp` | interactive, pseudoterminal, sende Port 80 (Container) auf 8080 (Host) |
 | `mein_image:latest` | welches Image soll verwendet werden inklusive der Version |
