@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grundlagen der Virtualisierung</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500&family=Merriweather:wght@400;500&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: #1a1a1a;
+            background: #ffffff;
+        }
+        .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 { margin: 1.5em 0 0.5em; line-height: 1.3; }
+        h1,.h1 { font-size: 2em; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.3em; }
+        h2,.h2 { font-size: 1.5em; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.3em; }
+        h3,.h3 { font-size: 1.25em; }
+        p { margin: 1em 0; }
+        a { color: #6366F1; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .code, code {
+            background: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.9em;
+        }
+        .pre, pre {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        pre code { background: none; padding: 0; color: inherit; }
+        blockquote {
+            border-left: 4px solid #6366F1;
+            padding-left: 16px;
+            margin: 1em 0;
+            color: #6b7280;
+            font-style: italic;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+        }
+        th, td {
+            border: 1px solid #e5e7eb;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        th { background: #f9fafb; font-weight: 600; }
+        tr:nth-child(even) { background: #f9fafb; }
+        ul, ol { margin: 1em 0; padding-left: 24px; }
+        li { margin: 0.25em 0; }
+        hr { border: none; border-top: 1px solid #e5e7eb; margin: 2em 0; }
+        img { max-width: 100%; height: auto; border-radius: 8px; }
+        .mermaid { text-align: center; margin: 1em 0; }
+        @media print {
+            body { padding: 20px; }
+            pre { white-space: pre-wrap; word-wrap: break-word; }
+        }
+    </style>
+</head>
+<body>
+<div class="h1" id="grundlagen-der-virtualisierung">Grundlagen der Virtualisierung</div>
+<p>mit Thomas Hanke<br>Author: Robin Heydkamp, <a href="robin.heydkamp@itzbund.de" class="link">robin.heydkamp@itzbund.de</a><br><br></p>
+<ul>
+<li>Part 1: Podman &amp; Docker</li>
+<li>Part 2: Container As A Service (Kubernetes &amp; Open Shift)</li>
+</ul>
+<div class="h2" id="übersicht">Übersicht</div>
+<ul>
+<li><a href="#grundlagen-der-virtualisierung" class="link">Grundlagen der Virtualisierung</a></li>
+<ul>
+<li><a href="#übersicht" class="link">Übersicht</a></li>
+<li><a href="#links" class="link">Links</a></li>
+<li><a href="#einführung" class="link">Einführung</a></li>
+<ul>
+<li><a href="#wörterwolke" class="link">WörterWolke</a></li>
+<li><a href="#docker-vs-podman" class="link">Docker vs Podman</a></li>
+<li><a href="#fork-exec---model" class="link">Fork Exec - Model</a></li>
+<li><a href="#skalierung" class="link">Skalierung</a></li>
+<li><a href="#sicherheit" class="link">Sicherheit</a></li>
+<li><a href="#versionierung" class="link">Versionierung</a></li>
+<li><a href="#linux-kommando-aufbau" class="link">Linux Kommando Aufbau</a></li>
+</ul>
+<li><a href="#unser-erster-container" class="link">Unser erster Container</a></li>
+<li><a href="#wir-bauen-einen-container-vorlage-mit-alpine" class="link">Wir bauen einen Container (Vorlage mit alpine)</a></li>
+<li><a href="#namespaces--control-groups" class="link">Namespaces &amp; Control-Groups</a></li>
+<li><a href="#registrys" class="link">Registrys</a></li>
+<li><a href="#logs" class="link">Logs</a></li>
+<li><a href="#der-container-lifecyle" class="link">Der Container Lifecyle</a></li>
+<ul>
+<li><a href="#container-löschen" class="link">Container Löschen</a></li>
+<li><a href="#container-umbenennen" class="link">Container (um)benennen</a></li>
+<li><a href="#cattle-pet---prinzip" class="link">Cattle Pet - Prinzip</a></li>
+</ul>
+<li><a href="#volumes-binds-und-tmpfs" class="link">Volumes, Binds und tmpfs</a></li>
+<ul>
+<li><a href="#volumes" class="link">Volumes</a></li>
+<li><a href="#binds" class="link">Binds</a></li>
+<li><a href="#tmpfs" class="link">tmpfs</a></li>
+</ul>
+<li><a href="#netze--ports" class="link">Netze &amp; Ports</a></li>
+<li><a href="#container-in-der-praxis" class="link">Container in der Praxis</a></li>
+<li><a href="#umgebung-aufräumen" class="link">Umgebung Aufräumen</a></li>
+<li><a href="#mysql-und-word-press" class="link">MYSQL und Word-Press</a></li>
+<ul>
+<li><a href="#netzwerke" class="link">Netzwerke</a></li>
+<ul>
+<li><a href="#verwendung" class="link">Verwendung</a></li>
+<ul>
+<li><a href="#kommando-erster-container" class="link">Kommando Erster Container</a></li>
+<li><a href="#kommando-zweiter-container" class="link">Kommando Zweiter Container</a></li>
+</ul>
+</ul>
+</ul>
+<li><a href="#raus-aus-bash---rein-in-die-beschreibung" class="link">Raus aus Bash -&gt; Rein in die Beschreibung</a></li>
+<ul>
+<li><a href="#verwendete-befehle" class="link">Verwendete Befehle</a></li>
+</ul>
+<li><a href="#unser-eigener-container" class="link">Unser eigener Container</a></li>
+</ul>
+</ul>
+<hr>
+<div class="h2" id="links">Links</div>
+<table class="table">
+<tbody><tr><th>Link</th><th>Beschreibung</th></tr>
+<tr><td><a href="https://hub.docker.com/" class="link">Hub.Docker</a></td><td>Hier holt sich Docker seine Images</td></tr>
+<tr><td><a href="https://semver.org/lang/de/" class="link">Semantic Versioning</a></td><td>Standardisierung bei Versionierungen</td></tr>
+<tr><td><a href="https://github.com/github/gitignore" class="link">GitIgnore</a></td><td>Sammlung an git.ignore-Dateien</td></tr>
+<tr><td><a href="https://developers.redhat.com/products/openshift-local" class="link">Red Hat Open Shift Local</a></td><td>Open Shift lokal ausprobieren. Developer Account benötigt</td></tr>
+</tbody></table>
+<div class="h2" id="einführung">Einführung</div>
+<div class="h3" id="wörterwolke">WörterWolke</div>
+<pre><code class="language-plaintext hljs" data-highlighted="yes">sting
+Docker - Podman
+Kubernetes - Open Shift - Swarm
+Image - Container
+YAML - Namespace - Skalierung
+"Security"</code></pre>
+<div class="h3" id="docker-vs-podman">Docker vs Podman</div>
+<p>Docker läuft als Root-Daemon, wenn ich also Docker aufrufe, läuft der Container als Root. Podman ist "rootless". Die Container laufen also mit den Rechten, mit denen ich sie starte.</p>
+<div class="h3" id="fork-exec---model">Fork Exec - Model</div>
+<p>Bei Fork wird das Programm in einem neuem Prozess gestartet. Sollte es fertig sein, oder beendet werden, übernimmt der "Parent"-Prozess.<br>Bei Exec wird das Programm in gleichen Prozess gestartet. Sollte das Programm dann geschlossen werden, gibt es kein "Parent"-Prozess der übernehmen könnte.</p>
+<div class="h3" id="skalierung">Skalierung</div>
+<ul>
+<li>vertikale Skalierung: Mehr CPU Power, mehr Memory</li>
+<li>horizontale Skalierung: Mehr Rechner, mehr Server</li>
+</ul>
+<div class="h3" id="sicherheit">Sicherheit</div>
+<ul>
+<li>CVE : Common Vulnerability Exposure - Bekannte Exploits und Bugs</li>
+<li>CVSS: Common Vulnerability Scoring System - Bewertung dieser Fehler.</li>
+</ul>
+<div class="h3" id="versionierung">Versionierung</div>
+<p><a href="https://semver.org/lang/de/" class="link">Semantic Versioning</a> dient der eindeutigen Versionierung von Software.</p>
+<ul>
+<li><span class="code">Major</span> - Änderungen die Inkompatibilität zu früheren Versionen erzeugen könnten</li>
+<li><span class="code">Minor</span> - Neue Funktionen die aber Kompatibel zu früheren Versionen sind.</li>
+<li><span class="code">Patch</span> - Bugfixes</li>
+</ul>
+<div class="h3" id="linux-kommando-aufbau">Linux Kommando Aufbau</div>
+<p>Beispiel: <span class="code">ls -a /etc/</span></p>
+<ul>
+<li>Kommando (<span class="code">ls</span>)</li>
+<li>Optionen (<span class="code">-a</span>)</li>
+<li>Argumente (<span class="code">/etc/</span>)</li>
+</ul>
+<p>Podman läuft ein wenig anders, mit Sub und oder auch Sub Sub Kommandos.</p>
+<p>Beispiel: <span class="code">podman container attach --help</span></p>
+<ul>
+<li>Kommando: <span class="code">podman</span></li>
+<li>Subkommando: <span class="code">container</span></li>
+<li>SubSubkommando: <span class="code">attach --help</span></li>
+</ul>
+<div class="h2" id="unser-erster-container">Unser erster Container</div>
+<p>Kommando: <span class="code">podman run hello-world</span></p>
+<p>Podman versucht direkt das Image runterzuladen und es als Container auszuführen. Bei erneutem Ausführen des Containers ist das Image bereits runtergeladen und muss nicht erneut runtergeladen werden. Podman versucht den Alias "hello-world" aufzulösen und greift dabei z.B. auf die Datei <span class="code">/etc/containers/registries.conf.d/000-shortnames.conf</span> zu.</p>
+<ul>
+<li><span class="code">FQCN</span> Fully Qualified Container Name</li>
+<ul>
+<li><span class="code">quay.io/podman/hello:latest</span></li>
+</ul>
+</ul>
+<table class="table">
+<tbody><tr><th>Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">cat /home/User/.local/share/containers</span></td><td>Hier speichert Podman seine Images</td></tr>
+<tr><td><span class="code">podman container ls</span></td><td>Zeigt den Status aller Container die aktiv sind.</td></tr>
+<tr><td><span class="code">podman container ls -a</span></td><td>Infos über ALLE Verwendeten Container an. Auch die, die geschlossen sind.</td></tr>
+</tbody></table>
+<div class="quote"><a href="https://developers.redhat.com/products/openshift-local" class="link"><em>Red Hat Open Shift Local</em></a> ist ein kostenloses Programm in dem man Open-Shift Lokal ausprobieren kann.</div>
+<div class="h2" id="wir-bauen-einen-container-vorlage-mit-alpine">Wir bauen einen Container (Vorlage mit alpine)</div>
+<p>Wir starten ein interaktives Alpine-Image in einem neuem Pseudoterminal</p>
+<ul>
+<li><span class="code">podman run -it alpine</span></li>
+</ul>
+<table class="table">
+<tbody><tr><th>(Sub) Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">podman run</span></td><td>ein Podman Image starten</td></tr>
+<tr><td><span class="code">-i</span></td><td>interactive, Ein und Ausgabe übertragen</td></tr>
+<tr><td><span class="code">-t</span></td><td>terminal, Pseudoterminal um die Ausgabe irgendwo anzuzeigen</td></tr>
+<tr><td><span class="code">alpine</span></td><td>Nutze das Image alpine</td></tr>
+</tbody></table>
+<hr>
+<p>Wir verknüpfen unser bash mit dem Container. Wir springen quasi hinein und können diese auch Beenden. Der Container-Name lässt sich mit <span class="code">podman container ls</span> rausfinden.</p>
+<ul>
+<li><span class="code">podman attach $CONTAINER-NAME</span> - Sich an ein laufenden Container "hängen" bzw. reinspringen.</li>
+<li><span class="code">podman pull $IMAGE-NAME</span> - Ein Image einfach nur Runterladen</li>
+<li><span class="code">podman run -it alpine ls -l</span> - ls -l wird als "Default" übertragen. In dem Image ist ein "entry-Point" definiert, wo der Befehl ausgeführt wird. In diesem Falle die Kommandozeile (Cmd)</li>
+</ul>
+<div class="h2" id="namespaces--control-groups">Namespaces &amp; Control-Groups</div>
+<p>Namespaces nutzen wir um eindeutige Interpretationen bzw. Definitionen zu ermöglichen. Ein Container erhält seinen eigenen Namespace in welchem er arbeiten kann. Im Namespace "Schmied" steht der Befehl "baue ein Schloss" für eine abschließbare Kette. Im Namespace "Königin" erstellt der gleiche Befehle ein Königliches Schloss mit Ballsaal und Thron.</p>
+<ul>
+<li><span class="code">man namespaces</span></li>
+</ul>
+<p>Mit cgroups (Control-Groups) lässt sich einschränken auf wie viele Ressourcen ein Container zugreifen darf. Zum Beispiel Prozessorleistung, Festplattenspeicher bis hin zu Lese/Schreibgeschwindigkeiten und Verwendung von Inodes.</p>
+<p>Es sollte immer eine Begrenzung des Arbeitsspeicher und der sonstigen Hardware geben, damit der Container nicht den kompletten Host übernimmt.</p>
+<div class="quote">Fehlprogrammierung ist immer möglich</div>
+<p>Ein Container ist nur eine Hülle. Arbeiten tut der "Prozess" selbst. Also Docker oder Podman.</p>
+<ul>
+<li><span class="code">podman info</span></li>
+<ul>
+<li>Zum Nachschauen welcher Variablen und Einstellungen im Podman hinterlegt sind.</li>
+</ul>
+</ul>
+<div class="h2" id="registrys">Registrys</div>
+<p>Wir haben über Registrys geredet :-)</p>
+<div class="h2" id="logs">Logs</div>
+<p>Jeder Container hinterlässt Logs. Diese können im nachhinein beobachtet werden, aber auch zur Laufzeit.<br>z.B. mit:</p>
+<ul>
+<li><span class="code">podman logs $CONTAINER-NAME</span></li>
+<ul>
+<li><span class="code">-f</span> für follow</li>
+</ul>
+</ul>
+<div class="h2" id="der-container-lifecyle">Der Container Lifecyle</div>
+<p>Wir haben bereits einen Container erzeugt und gestartet (run) und können ihn über "<span class="code">podman start</span>" und "<span class="code">podman stop</span>" starten und stoppen.</p>
+<p><img src="https://k21academy.com/wp-content/uploads/2020/10/Capture-5.png" alt="Docker Container Lifecyle Management" style="max-width:100%;height:auto;"></p>
+<ul>
+<li><span class="code">Strg</span> + <span class="code">p</span> <span class="code">q</span> - Zum Beenden eines Containers.</li>
+<li>Den Container-Name mit <span class="code">podman container ls</span> rausfinden.</li>
+</ul>
+<table class="table">
+<tbody><tr><th>Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">man podman-run | grep detached</span></td><td>Gibt alle Man Pages für "podman run" an und filtert nach dem Keyword "detached"</td></tr>
+<tr><td><span class="code">podman exec -it $CONTAINER-NAME ls</span></td><td>Springt in den Container (interactive, terminal) und führt das Kommando <span class="code">ls</span> aus</td></tr>
+<tr><td><span class="code">podman rm $CONTAINER-NAME</span></td><td>Entfernt <strong>gestoppte</strong> Container inkl. aller Logs</td></tr>
+</tbody></table>
+<div class="h3" id="container-löschen">Container Löschen</div>
+<table class="table">
+<tbody><tr><th>Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">podman run --rm -it alpine</span></td><td>Führt den Container erst aus, löscht ihn aber, nachdem er beendet wurde.</td></tr>
+<tr><td><span class="code">podman container prune</span></td><td>Alle Container (die nicht laufen) löschen</td></tr>
+<tr><td><span class="code">podman image rm nginx:latest</span></td><td>Löscht das Image von "<span class="code">nginx:latest</span>"</td></tr>
+</tbody></table>
+<div class="h3" id="container-umbenennen">Container (um)benennen</div>
+<table class="table">
+<tbody><tr><th>Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">podman run --name $CONTAINER-NAME -it alpine</span></td><td>Startet einen Container und vergibt einen eigenen Namen</td></tr>
+<tr><td><span class="code">podman rename <span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>O</mi><mi>N</mi><mi>T</mi><mi>A</mi><mi>I</mi><mi>N</mi><mi>E</mi><mi>R</mi><mo>−</mo><mi>N</mi><mi>A</mi><mi>M</mi><mi>E</mi></mrow><annotation encoding="application/x-tex">CONTAINER-NAME </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height: 0.7667em; vertical-align: -0.0833em;"></span><span class="mord mathnormal" style="margin-right: 0.1389em;">CONT</span><span class="mord mathnormal">A</span><span class="mord mathnormal" style="margin-right: 0.0785em;">I</span><span class="mord mathnormal" style="margin-right: 0.0077em;">NER</span><span class="mspace" style="margin-right: 0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right: 0.2222em;"></span></span><span class="base"><span class="strut" style="height: 0.6833em;"></span><span class="mord mathnormal" style="margin-right: 0.109em;">N</span><span class="mord mathnormal">A</span><span class="mord mathnormal" style="margin-right: 0.0576em;">ME</span></span></span></span></span>NEW-CONTAINER-NAME</span></td><td>einen laufenden Container umbenennen.</td></tr>
+</tbody></table>
+<div class="quote">Ein Container-Name muss immer einzigartig sein. Wenn ich versuche ein zusätzlichen Container mit selben Name versuche zu <em>erzeugen</em> (<span class="code">podman run</span>) kommt es zum Fehler.</div>
+<div class="h3" id="cattle-pet---prinzip">Cattle Pet - Prinzip</div>
+<p>Die Grundlagen der Virtualisierung.<br>Pets werden gepflegt, Cattle wird "weggeschmissen und neu geholt".</p>
+<div class="h2" id="volumes-binds-und-tmpfs">Volumes, Binds und tmpfs</div>
+<div class="h3" id="volumes">Volumes</div>
+<p>Volumes sind Speicher auf die verschiedene Container zugreifen können</p>
+<ul>
+<li><span class="code">podman volume create $VOLUME-NAME</span> - Das Volume erzeugen</li>
+</ul>
+<p>Benutzung: <span class="code">podman run --volume $VOLUME-NAME:/mnt --rm --name volume_test -it alpine</span></p>
+<table class="table">
+<tbody><tr><th>(Sub) Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">podman run</span></td><td>Kommando für Podman</td></tr>
+<tr><td><span class="code">--volume $VOLUME-NAME:/mnt</span></td><td>Benutze das erzeugte Volume, und binde es unter /mnt ein.</td></tr>
+<tr><td><span class="code">--rm</span></td><td>LÖSCHE den Container, nachdem er beendet wurde</td></tr>
+<tr><td><span class="code">--name volume_test</span></td><td>Benenne den Container 'volume_test'</td></tr>
+<tr><td><span class="code">-it</span></td><td>interactive, pseudoterminal</td></tr>
+<tr><td><span class="code">alpine</span></td><td>Nutze das Image alpine</td></tr>
+</tbody></table>
+<div class="h3" id="binds">Binds</div>
+<p>Binds sind Speicher, die, im Gegensatz zu Volumes, vom Host gemanaged werden und damit etwas "interaktiver" sind. Sie werden fast identisch eingebunden. Statt dem Volume-Namen verwenden wir den Ordner-Namen</p>
+<p>Benutzung: <span class="code">podman run --volume /home/User/Ordner1/:/mnt:z --rm --name volume_test -it alpine</span></p>
+<table class="table">
+<tbody><tr><th>(Sub) Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">podman run</span></td><td>Kommando für Podman</td></tr>
+<tr><td><span class="code">--volume /home/User/Ordner1/:/mnt:z</span></td><td>Binde das designierte Verzeichnis 'Ordner1' in dem Container unter /mnt ein. Das z-Flag erlaubt die Nutzung auch unter SE-Linux und das der Container auf das Verzeichnis zugreifen darf.</td></tr>
+<tr><td><span class="code">--rm</span></td><td>LÖSCHE den Container, nachdem er beendet wurde</td></tr>
+<tr><td><span class="code">--name volume_test</span></td><td>Benenne den Container 'volume_test'</td></tr>
+<tr><td><span class="code">-it alpine</span></td><td>interactive, pseudoterminal, Alpine-Image</td></tr>
+</tbody></table>
+<div class="h3" id="tmpfs">tmpfs</div>
+<p>Wir haben tmpfs mit einem halben Satz angesprochen... ( ͡° ͜ʖ ͡°)_/¯</p>
+<div class="h2" id="netze--ports">Netze &amp; Ports</div>
+<p>Wir können ein nginx-Image starten, der geöffnete Port (80) wäre allerdings nicht erreichbar. Wir wollen den Freigegebenen Port vom Host aufrufen können.</p>
+<p><span class="code">podman run -dit -p 8080:80 nginx</span></p>
+<table class="table">
+<tbody><tr><th>Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">podman run</span></td><td>Kommando für Podman</td></tr>
+<tr><td><span class="code">-dit</span></td><td>detached, interactive, terminal</td></tr>
+<tr><td><span class="code">-p 8080:80</span></td><td>Port öffnen: Host 8080 auf Container 80</td></tr>
+<tr><td><span class="code">nginx</span></td><td>Nutze das Image nginx</td></tr>
+</tbody></table>
+<p><a href="http://localhost:8080" class="link">Zum Testen</a></p>
+<div class="quote">Wir nutzen Port 8080 da die ersten 1000 Ports nur vom System vergeben werden sollen/dürfen.</div>
+<div class="h2" id="container-in-der-praxis">Container in der Praxis</div>
+<p>Beispiel: <span class="code">podman run -dp 8080:80 -v /home/User/Ordner1:/usr/share/nginx/html --name Port_Test_Container nginx</span></p>
+<table class="table">
+<tbody><tr><th>(Sub) Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">podman run</span></td><td>Kommando für Podman</td></tr>
+<tr><td><span class="code">-dp 8080:80</span></td><td>detached, Port öffnen: Host 8080 auf Container 80</td></tr>
+<tr><td><span class="code">-v /home/User/Ordner1:/usr/share/nginx/html</span></td><td>Binde den Ordner Ordner1 auf /usr/share/nginx/html/ ein</td></tr>
+<tr><td><span class="code">--name Port_Test_Container</span></td><td>Vergib einen schönen, sauberen Namen</td></tr>
+<tr><td><span class="code">nginx</span></td><td>Nutze das Image nginx</td></tr>
+</tbody></table>
+<div class="h2" id="umgebung-aufräumen">Umgebung Aufräumen</div>
+<ul>
+<li><span class="code">podman container prune</span></li>
+<li><span class="code">podman volume prune</span></li>
+<li><span class="code">podman network prune</span></li>
+</ul>
+<div class="h2" id="mysql-und-word-press">MYSQL und Word-Press</div>
+<ul>
+<li><span class="code">podman pull mysql</span> - Ein Mysql Image runterladen</li>
+<li><span class="code">podman image inspect mysql | less</span> - Das Image untersuchen</li>
+</ul>
+<pre><code class="language-plaintext hljs" data-highlighted="yes">bash
+  "Volumes": {
+      "/var/lib/mysql": {}
+  },</code></pre>
+<p>wir finden raus, dass das Image ein Volume <strong>braucht</strong>. Defaultmäßig würde der Container dies selber erzeugen. Wir können dies aber auch selber machen:<br> <span class="code">podman volume create mysql_volume</span> - und anschließend dem Container mitgeben mit: <span class="code">podman run -it --volume mysql_volume:/var/lib/mysql mysql</span><br>Trotzdem bekommen wir die Fehlermeldung:</p>
+<pre><code class="language-plaintext hljs" data-highlighted="yes">bash
+    You need to specify one of the following as an environment variable:
+  - MYSQL_ROOT_PASSWORD
+  - MYSQL_ALLOW_EMPTY_PASSWORD
+  - MYSQL_RANDOM_ROOT_PASSWORD</code></pre>
+<p>Manche Container benötigen zusätzliche Variablen. Jede Variabel muss separat beim Aufruf hinzugefügt werden.</p>
+<ul>
+<li><span class="code">podman run -it --volume mysql_volume:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_ALLOW_EMPTY_PASSWORD=true -e MYSQL_RANDOM_ROOT_PASSWORD=root mysql</span></li>
+</ul>
+<table class="table">
+<tbody><tr><th>(Sub) Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">podman run</span></td><td>Kommando für Podman</td></tr>
+<tr><td><span class="code">-it</span></td><td>interactive, pseudoterminal</td></tr>
+<tr><td><span class="code">--volume mysql_volume:/var/lib/mysql</span></td><td>Verwende das (vorher angelegte) Volume "mysqsl_volume" und binde es unter "/var/lib/mysql ein</td></tr>
+<tr><td><span class="code">-e MYSQL_ROOT_PASSWORD=root</span></td><td>Umgebungsvariable für den Container</td></tr>
+<tr><td><span class="code">-e MYSQL_ALLOW_EMPTY_PASSWORD=true</span></td><td>Umgebungsvariable für den Container</td></tr>
+<tr><td><span class="code">-e MYSQL_RANDOM_ROOT_PASSWORD=root</span></td><td>Umgebungsvariable für den Container</td></tr>
+<tr><td><span class="code">mysql</span></td><td>Nutze das Image mysql</td></tr>
+</tbody></table>
+<ul>
+<li><span class="code">podman exec -it -l sh</span> - Rein in die Maschine und Shell starten. <span class="code">-l</span> ist ein Indikator für den letzten verwendeten Container. Der Name oder die ID wären ebenfalls möglich.</li>
+</ul>
+<div class="h3" id="netzwerke">Netzwerke</div>
+<p>Über ein Netzwerk können Container untereinander kommunizieren und sich gegenseitig als "Server" wahrnehmen.</p>
+<p><span class="code">podman network create net_wordpress</span> - Erzeugt ein Containernetzwerk mit der Bezeichnung: "net_wordpress"</p>
+<div class="h4" id="verwendung">Verwendung</div>
+<div class="h5" id="kommando-erster-container">Kommando Erster Container</div>
+<pre><code class="language-plaintext hljs" data-highlighted="yes">bash
+podman run -d \
+--name mariadb-test \
+--network net_wordpress \
+-e MYSQL_DATABASE=wp \
+-e MYSQL_USER=wpuser \
+-e MYSQL_PASSWORD=geheim \
+-e MYSQL_ROOT_PASSWORD=root \
+-v vol_wordpress:/var/lib/mysql \
+mariadb</code></pre>
+<div class="h5" id="kommando-zweiter-container">Kommando Zweiter Container</div>
+<pre><code class="language-plaintext hljs" data-highlighted="yes">bash
+podman run -d --name pma \
+--network net_wordpress \
+-p 8080:80 \
+-e PMA_HOST=mariadb-test \
+phpmyadmin</code></pre>
+<div class="h2" id="raus-aus-bash---rein-in-die-beschreibung">Raus aus Bash -&gt; Rein in die Beschreibung</div>
+<p>Mit <span class="code">podman-compose</span> können wir über eine Composer-Datei ein komplettes Setup aufbauen. Datenbanken, Appserver und Webserver inkl. Netzwerk, Volumes und mehr.</p>
+<p><span class="code">podman-compose</span> muss i.d.R. nachinstalliert werden da es nicht im standardmäßigem Podman-Paket vorhanden ist. Z.B. mit <span class="code">sudo dnf install podman-compose</span></p>
+<pre><code class="language-plaintext hljs" data-highlighted="yes">YAML
+version: '3.8'
+
+services:
+  db:
+    image: docker.io/library/mysql:8.0
+    container_name: wordpress-db
+    # restart: always ## Funktioniert nur unter Docker, da Docker einen Deamon benutzt.
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql 
+
+  wordpress:
+    image: docker.io/library/wordpress:latest
+    container_name: wordpress-app
+    environment:
+      WORDPRESS_DB_HOST: db:3306 # Name des Services (Zeile 4) + Port
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${DB_NAME}
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+volumes:
+  db_data: # Volumen für die Datenbank, Default reicht aus.</code></pre>
+<p><em>compose.yml</em> - Datei</p>
+<p>Secrets und sensitive  Daten (Hier als Variable mit ${XXX} gekennzeichnet) sollten ausgelagert werden. Z.B. in eine .env Datei. Diese Datei wird dann nicht in der Versionierung (z.B. Git) aufgenommen und/oder bekommt spezielle Zugriffsberechtigungen.</p>
+<pre><code class="language-plaintext hljs" data-highlighted="yes">BASH
+DB_NAME= wordpress
+MYSQL_USER= wpuser
+MYSQL_PASSWORD= wppassword
+MYSQL_ROOT_PASSWORD= safe</code></pre>
+<p><em>.env</em> - Datei</p>
+<div class="h3" id="verwendete-befehle">Verwendete Befehle</div>
+<table class="table">
+<tbody><tr><th>Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">sudo dnf install podman-compose</span></td><td>Podman-Compose installieren (Debian basiertes OS)</td></tr>
+<tr><td><span class="code">podman-compose up</span></td><td>Podman anhand der Compose-Datei starten. Der Befehl muss im selben Ordner ausgeführt werden wie die composer.yml ist.</td></tr>
+<tr><td><span class="code">podman-compose down</span></td><td>Die Sitzung wieder runterfahren.</td></tr>
+<tr><td><span class="code">podman-compose stats</span></td><td>Statistiken über alle "composierten" Session auslesen.</td></tr>
+<tr><td><span class="code">podman-compose --env-file prod</span></td><td>Wir laden eine alternative env.File mit dem Namen "prod", Default: .env</td></tr>
+<tr><td><span class="code">config</span></td><td>Wir schauen uns die Konfigurationsdatei (composer.yml) damit an. Variablen werden dabei schon aufgelöst.</td></tr>
+</tbody></table>
+<div class="h2" id="unser-eigener-container">Unser eigener Container</div>
+<p>Wir erzeugen eine neue Datei</p>
+<pre><code class="language-plaintext hljs" data-highlighted="yes">BASH
+FROM docker.io/library/nginx:alpine # Grundlegendes Image
+COPY index.html /usr/share/nginx/html/index.html # Kopiere die index.html in den nginx Ordner
+EXPOSE 80 # Öffne Port 80 (wir müssen diesen trotzdem beim aufrufen des Containers angeben)</code></pre>
+<p><em>containerfile</em> - Datei</p>
+<p>In dieser haben wir alle Inhalte unseres Images einmal niedergeschrieben. Nun muss daraus noch ein Image erstellt werden:</p>
+<p>Kommando: <span class="code">podman build -t [FQCN]/mein_image .</span></p>
+<table class="table">
+<tbody><tr><th>(Sub) Kommando</th><th>Wirkung</th></tr>
+<tr><td><span class="code">podman build</span></td><td>Podman soll ein Image "bauen"</td></tr>
+<tr><td><span class="code">-t [FQCN]/mein_image</span></td><td>Wir hinterlegen einen Tag für unser neues Image damit wir dieses später auch benennen und starten können z.B. "itzbund/podman/mein_image"</td></tr>
+<tr><td><span class="code">.</span></td><td>Konfigurationsumgebung. Woher sollen Variablen gezogen werden. (. = Aktueller Ordner)</td></tr>
+</tbody></table>
+<p>Kommando: <span class="code">podman run -itp 8080:80 mein_image:latest</span></p>
+<table class="table">
+<tbody><tr><th>Kommando</th><th>Wirkung</th></tr>
+</tbody></table>
+<table class="table">
+<tbody><tr><th><span class="code">podman run</span></th><th>Podman soll ein Image "bauen"</th></tr>
+<tr><td><span class="code">-itp</span></td><td>interactive, pseudoterminal, sende Port 80 (Container) auf 8080 (Host)</td></tr>
+<tr><td><span class="code">mein_image:latest</span></td><td>welches Image soll verwendet werden inklusive der Version</td></tr>
+</tbody></table>
+<p>Um größere Images zu bauen können wir Teile aus bereits bestehenden Images "kopieren".<br>Dazu können wir z.B. das "<span class="code">FROM</span>" oder "<span class="code">COPY</span>" Kommando in der Containerfile verwenden. Mehr Infos dazu im Buch ab Seite 97.</p>
+<ul>
+<li><span class="code">podman image ls</span> - Zum einsehen aller Images (auch die, die wir selbst hinterlegt haben)</li>
+</ul>
+
+</body>
+</html>

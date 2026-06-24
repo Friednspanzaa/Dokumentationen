@@ -51,9 +51,9 @@ Author: Robin Heydkamp, [robin.heydkamp@itzbund.de](robin.heydkamp@itzbund.de)
 | Link | Beschreibung |
 | ----------- | ----------- |
 | [Hub.Docker](https://hub.docker.com/) | Hier holt sich Docker seine Images |
-| [Sematic Versioning](https://semver.org/lang/de/) | Standartisierung bei Versionierungen |
+| [Semantic Versioning](https://semver.org/lang/de/) | Standardisierung bei Versionierungen |
 | [GitIgnore](https://github.com/github/gitignore) | Sammlung an git.ignore-Dateien |
-| [*Red Hat Open Shift Local*](https://developers.redhat.com/products/openshift-local) | Open Shift lokal ausprobieren. Developer Account benötigt |
+| [Red Hat Open Shift Local](https://developers.redhat.com/products/openshift-local) | Open Shift lokal ausprobieren. Developer Account benötigt |
 
 ## Einführung
 
@@ -65,7 +65,7 @@ Kubernetes - Open Shift - Swarm
 Image - Container
 YAML - Namespace - Skalierung
 "Security"
-````
+```
 
 ### Docker vs Podman
 
@@ -73,8 +73,8 @@ Docker läuft als Root-Daemon, wenn ich also Docker aufrufe, läuft der Containe
 
 ### Fork Exec - Model
 
-Bei Fork wird das Programm in einem neuem Prozess gestartet. Sollte es fertig sein, oder beendet werden, übernimt der "Parent"-Prozess.
-Bei Exec wird das Programm in gleichen Prozess gestartet. Sollte das Programm dann geschlossen werden, gibt es kein "Parent"-Prozess der übernemen könnte.
+Bei Fork wird das Programm in einem neuem Prozess gestartet. Sollte es fertig sein, oder beendet werden, übernimmt der "Parent"-Prozess.
+Bei Exec wird das Programm in gleichen Prozess gestartet. Sollte das Programm dann geschlossen werden, gibt es kein "Parent"-Prozess der übernehmen könnte.
 
 ### Skalierung
 
@@ -88,10 +88,10 @@ Bei Exec wird das Programm in gleichen Prozess gestartet. Sollte das Programm da
 
 ### Versionierung
 
-[Sematic Versioning](https://semver.org/lang/de/) dient der eindeutigen Versionierung von Software.
+[Semantic Versioning](https://semver.org/lang/de/) dient der eindeutigen Versionierung von Software.
 
-- `Major` - Änderungen die inkompatibilität zu früheren Versionen erzeugen könnten
-- `Minor` -  Neue Funktionen die aber Kompatibel zu früheren Versionen sind.
+- `Major` - Änderungen die Inkompatibilität zu früheren Versionen erzeugen könnten
+- `Minor` - Neue Funktionen die aber Kompatibel zu früheren Versionen sind.
 - `Patch` - Bugfixes
 
 ### Linux Kommando Aufbau
@@ -136,7 +136,7 @@ Wir starten ein interaktives Alpine-Image in einem neuem Pseudoterminal
 | (Sub) Kommando | Wirkung |
 | ----------- | ----------- |
 | `podman run` | ein Podman Image starten |
-| `-i` | interative, Ein und Ausgabe übertragen |
+| `-i` | interactive, Ein und Ausgabe übertragen |
 | `-t` | terminal, Pseudoterminal um die Ausgabe irgendwo anzuzeigen |
 | `alpine` | Nutze das Image alpine |
 
@@ -152,17 +152,17 @@ Wir verknüpfen unser bash mit dem Container. Wir springen quasi hinein und kön
 
 ## Namespaces & Control-Groups
 
- Namespaces nutzen wir um eindeutige Interpretationen bzw. Definitionen zu ermöglichen. Ein Container erhält seinen eigenen Namespace in welchem er arbeiten kann. Im Namespace "Schmied" steht der Befehl "baue ein Schloss" für eine abschließbare Kette. Im Namespace "Königin" erstellt der gleiche Befehle ein Königliches Schloss mit Ballsaal und Thron.
+Namespaces nutzen wir um eindeutige Interpretationen bzw. Definitionen zu ermöglichen. Ein Container erhält seinen eigenen Namespace in welchem er arbeiten kann. Im Namespace "Schmied" steht der Befehl "baue ein Schloss" für eine abschließbare Kette. Im Namespace "Königin" erstellt der gleiche Befehle ein Königliches Schloss mit Ballsaal und Thron.
 
 - `man namespaces`
 
-Mit cgroups (Control-Groups) lässt sich einschränken auf wie viele Ressourcen ein Container zugreifen darf. Zum Beispiel Prozessorleistung, Festplattenspeicher bis hin zu Lese/Schreibgeschwindigkeiten und verwendung von Inodes.
+Mit cgroups (Control-Groups) lässt sich einschränken auf wie viele Ressourcen ein Container zugreifen darf. Zum Beispiel Prozessorleistung, Festplattenspeicher bis hin zu Lese/Schreibgeschwindigkeiten und Verwendung von Inodes.
 
 Es sollte immer eine Begrenzung des Arbeitsspeicher und der sonstigen Hardware geben, damit der Container nicht den kompletten Host übernimmt.
 
 > Fehlprogrammierung ist immer möglich
 
-Ein Container ist nur eine Hülle. Arbeiten selbt tut der "Prozess". Also Docker oder Podman.
+Ein Container ist nur eine Hülle. Arbeiten tut der "Prozess" selbst. Also Docker oder Podman.
 
 - `podman info`
   - Zum Nachschauen welcher Variablen und Einstellungen im Podman hinterlegt sind.
@@ -173,7 +173,7 @@ Wir haben über Registrys geredet :-)
 
 ## Logs
 
-Jeder Container hinterlässt Logs. Diese können im nachhinein beobeachtet werden, aber auch zur Laufzeit.
+Jeder Container hinterlässt Logs. Diese können im nachhinein beobachtet werden, aber auch zur Laufzeit.
 z.B. mit:
 
 - `podman logs $CONTAINER-NAME`
@@ -183,7 +183,7 @@ z.B. mit:
 
 Wir haben bereits einen Container erzeugt und gestartet (run) und können ihn über "`podman start`" und "`podman stop`" starten und stoppen.
 
-![Docker Container Lifecyle Management](images/docker_lifecyle.jpg)
+![Docker Container Lifecyle Management](images/docker_lifecyle.png)
 
 - `Strg` + `p` `q` - Zum Beenden eines Containers.
 - Den Container-Name mit `podman container ls` rausfinden.
@@ -191,7 +191,7 @@ Wir haben bereits einen Container erzeugt und gestartet (run) und können ihn ü
 | Kommando | Wirkung |
 | ----------- | ----------- |
 | `man podman-run \| grep detached` | Gibt alle Man Pages für "podman run" an und filtert nach dem Keyword "detached" |
-| `podman exec -it $CONTAINER-NAME ls` | Springt in den Container (interaktiv, terminal) und fürt das Kommando `ls` aus |
+| `podman exec -it $CONTAINER-NAME ls` | Springt in den Container (interactive, terminal) und führt das Kommando `ls` aus |
 | `podman rm $CONTAINER-NAME` | Entfernt **gestoppte** Container inkl. aller Logs |
 
 ### Container Löschen
@@ -207,7 +207,7 @@ Wir haben bereits einen Container erzeugt und gestartet (run) und können ihn ü
 | Kommando | Wirkung |
 | ----------- | ----------- |
 | `podman run --name $CONTAINER-NAME -it alpine` | Startet einen Container und vergibt einen eigenen Namen |
-| `podman rename $CONTAINER-NAME $NEW-CONTAINER-NAME` | einen laufenden Container umbenenen. |
+| `podman rename $CONTAINER-NAME $NEW-CONTAINER-NAME` | einen laufenden Container umbenennen. |
 
 > Ein Container-Name muss immer einzigartig sein. Wenn ich versuche ein zusätzlichen Container mit selben Name versuche zu *erzeugen* (`podman run`) kommt es zum Fehler.
 
@@ -232,26 +232,26 @@ Benutzung: `podman run --volume $VOLUME-NAME:/mnt --rm --name volume_test -it al
 | `--volume $VOLUME-NAME:/mnt` | Benutze das erzeugte Volume, und binde es unter /mnt ein. |
 | `--rm` | LÖSCHE den Container, nachdem er beendet wurde |
 | `--name volume_test` | Benenne den Container 'volume_test' |
-| `-it` | interaktiv, pseudoterminal |
+| `-it` | interactive, pseudoterminal |
 | `alpine` | Nutze das Image alpine |
 
 ### Binds
 
-Binds sind Speicher, die, im gegensatz zu Volumes, vom Host gemanaged werden und damit etwas "interaktiver" sind. Sie werden fast identisch eingebunden. Statt dem Volume-Namen verwenden wir den Ordner-Namen
+Binds sind Speicher, die, im Gegensatz zu Volumes, vom Host gemanaged werden und damit etwas "interaktiver" sind. Sie werden fast identisch eingebunden. Statt dem Volume-Namen verwenden wir den Ordner-Namen
 
 Benutzung: `podman run --volume /home/User/Ordner1/:/mnt:z --rm --name volume_test -it alpine`
 
 | (Sub) Kommando | Wirkung |
 | ----------- | ----------- |
 | `podman run` | Kommando für Podman |
-| `--volume /home/User/Ordner1/:/mnt:z` | Binde das designierte Verzeichniss 'Ordner1' in dem Container unter /mnt ein. Das z-Flag erlaubt die Nutzung auch unter SE-Linux und das der Container auf das Verzeichniss zugreifen darf. |
+| `--volume /home/User/Ordner1/:/mnt:z` | Binde das designierte Verzeichnis 'Ordner1' in dem Container unter /mnt ein. Das z-Flag erlaubt die Nutzung auch unter SE-Linux und das der Container auf das Verzeichnis zugreifen darf. |
 | `--rm` | LÖSCHE den Container, nachdem er beendet wurde |
 | `--name volume_test` | Benenne den Container 'volume_test' |
-| `-it alpine` | interaktiv, pseudoterminal, Alpine-Image |
+| `-it alpine` | interactive, pseudoterminal, Alpine-Image |
 
 ### tmpfs
 
-Wir tmpfs mit einem halben Satz angesprochen... ( ͡° ͜ʖ ͡°)_/¯
+Wir haben tmpfs mit einem halben Satz angesprochen... ( ͡° ͜ʖ ͡°)_/¯
 
 ## Netze & Ports
 
@@ -262,7 +262,7 @@ Wir können ein nginx-Image starten, der geöffnete Port (80) wäre allerdings n
 | Kommando | Wirkung |
 | ----------- | ----------- |
 | `podman run` | Kommando für Podman |
-| `-dit` | detached, interative, terminal |
+| `-dit` | detached, interactive, terminal |
 | `-p 8080:80` | Port öffnen: Host 8080 auf Container 80 |
 | `nginx` | Nutze das Image nginx |
 
@@ -310,7 +310,7 @@ Trotzdem bekommen wir die Fehlermeldung:
   - MYSQL_RANDOM_ROOT_PASSWORD
 ```
 
-Manche Container benötigen zusätzliche Variablen. Jede Variabele muss seperat beim Aufruf hinzugefügt werden.
+Manche Container benötigen zusätzliche Variablen. Jede Variabel muss separat beim Aufruf hinzugefügt werden.
 
 - `podman run -it --volume mysql_volume:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_ALLOW_EMPTY_PASSWORD=true -e MYSQL_RANDOM_ROOT_PASSWORD=root mysql`
 
@@ -330,7 +330,7 @@ Manche Container benötigen zusätzliche Variablen. Jede Variabele muss seperat 
 
 Über ein Netzwerk können Container untereinander kommunizieren und sich gegenseitig als "Server" wahrnehmen.
 
-`podman network create net_wordpress` - Erzeugt ein Containernetzwerk mmit der Bezeichnung: "net_wordpress"
+`podman network create net_wordpress` - Erzeugt ein Containernetzwerk mit der Bezeichnung: "net_wordpress"
 
 #### Verwendung
 
@@ -399,7 +399,7 @@ volumes:
 
 *compose.yml* - Datei
 
-> Secrets und Senstitive Daten (Hier als Variable mit ${XXX} gekennzeichnet) sollten ausgelagert werden. Z.B. in eine .env Datei. Diese Datei wird dann nicht in der Versionierung (z.B. Git) aufgenommen und/oder bekommt spezielle Zugriffsberechtigungen.
+ Secrets und sensitive  Daten (Hier als Variable mit ${XXX} gekennzeichnet) sollten ausgelagert werden. Z.B. in eine .env Datei. Diese Datei wird dann nicht in der Versionierung (z.B. Git) aufgenommen und/oder bekommt spezielle Zugriffsberechtigungen.
 
 ``` BASH
 DB_NAME= wordpress
@@ -415,11 +415,11 @@ MYSQL_ROOT_PASSWORD= safe
 | Kommando | Wirkung |
 | ----------- | ----------- |
 | `sudo dnf install podman-compose` | Podman-Compose installieren (Debian basiertes OS) |
-| `podman-compose up` | Podman anhand der Compose-Datei starten. Der Befehl muss im selben Ornder ausgeführt werden wie die composer.yml ist. |
+| `podman-compose up` | Podman anhand der Compose-Datei starten. Der Befehl muss im selben Ordner ausgeführt werden wie die composer.yml ist. |
 | `podman-compose down` | Die Sitzung wieder runterfahren. |
-| `podman-compose stats` | Statistiken über alle composierten Session auslesen. |
+| `podman-compose stats` | Statistiken über alle "composierten" Session auslesen. |
 | `podman-compose --env-file prod` | Wir laden eine alternative env.File mit dem Namen "prod", Default: .env |
-| `config` | Wir schauen uns die Configurations-Datei (composer.yml) damit an. Variabelen werden dabei schon aufgelöst. |
+| `config` | Wir schauen uns die Konfigurationsdatei (composer.yml) damit an. Variablen werden dabei schon aufgelöst. |
 
 ## Unser eigener Container
 
@@ -427,19 +427,21 @@ Wir erzeugen eine neue Datei
 
 ``` BASH
 FROM docker.io/library/nginx:alpine # Grundlegendes Image
-COPY index.html /usr/share/nginx/html/index.html # Kopiere die index.html in den nginx Ornder
+COPY index.html /usr/share/nginx/html/index.html # Kopiere die index.html in den nginx Ordner
 EXPOSE 80 # Öffne Port 80 (wir müssen diesen trotzdem beim aufrufen des Containers angeben)
 ```
 
 *containerfile* - Datei
+
+In dieser haben wir alle Inhalte unseres Images einmal niedergeschrieben. Nun muss daraus noch ein Image erstellt werden:
 
 Kommando: `podman build -t [FQCN]/mein_image .`
 
 | (Sub) Kommando | Wirkung |
 | ----------- | ----------- |
 | `podman build` | Podman soll ein Image "bauen" |
-| `-t [FQCN]/mein_image` | Wir hinterlegen einen Tag für unser neues Image damit wir dieses später auch benennen und starten können |
-| `.` | Configurationsumgebung. Woher sollen Variablen gezogen werden. (. = Aktueller Ordner) |
+| `-t [FQCN]/mein_image` | Wir hinterlegen einen Tag für unser neues Image damit wir dieses später auch benennen und starten können z.B. "itzbund/podman/mein_image" |
+| `.` | Konfigurationsumgebung. Woher sollen Variablen gezogen werden. (. = Aktueller Ordner) |
 
 Kommando: `podman run -itp 8080:80 mein_image:latest`
 
